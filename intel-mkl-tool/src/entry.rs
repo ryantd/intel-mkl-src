@@ -103,8 +103,17 @@ impl Entry {
         // $MKLROOT
         let mkl_root = std::env::var("MKLROOT").map(|path| PathBuf::from(path));
         if let Ok(path) = mkl_root {
-            if path.exists() {
-                targets.seek(path.join("lib/intel64"));
+            if cfg!(windows) {
+                if path.exists() {
+                    targets.seek(path.join("lib/intel64"));
+                    targets.seek(path.join("../compiler/lib/intel64"));
+                }
+            } else {
+                if path.exists() {
+                    targets.seek(path.join("lib/intel64"));
+                    targets.seek(path.join("../lib/intel64"));
+                    targets.seek(path.join("../compiler/intel64"));
+                }
             }
         }
 
@@ -112,14 +121,17 @@ impl Entry {
         let opt_mkl = PathBuf::from("/opt/intel/mkl");
         if opt_mkl.exists() {
             targets.seek(opt_mkl.join("lib/intel64"));
+            targets.seek(opt_mkl.join("../lib/intel64"));
+            targets.seek(path.join("../compiler/intel64"));
         }
 
         // Default setting for Windows installer
-        let windows_mkl =
-            PathBuf::from("C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows");
+        let windows_mkl = PathBuf::from(
+            "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/mkl",
+        );
         if windows_mkl.exists() {
-            targets.seek(windows_mkl.join("mkl/lib/intel64"));
-            targets.seek(windows_mkl.join("compiler/lib/intel64"));
+            targets.seek(windows_mkl.join("lib/intel64"));
+            targets.seek(windows_mkl.join("../compiler/lib/intel64"));
         }
 
         if targets.found_any() {
@@ -157,7 +169,13 @@ impl Entry {
             //   - include
             //   - lib/intel64 <- this is cached in targets
             //
-            let version_header = path.join("../../include/mkl_version.h");
+            let mut append_str = "../../include/mkl_version.h";
+            let mut actual_path = path.clone();
+            if cfg!(windows) {
+                actual_path = PathBuf::from(path.to_string_lossy().replace(r"\\?\", ""));
+                append_str = "..\\..\\include\\mkl_version.h";
+            }
+            let version_header = actual_path.join(append_str);
             if !version_header.exists() {
                 continue;
             }

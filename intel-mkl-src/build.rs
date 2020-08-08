@@ -24,7 +24,6 @@
 
 use anyhow::*;
 use intel_mkl_tool::*;
-use std::{env, path::*};
 
 #[cfg(feature = "mkl-static-lp64-iomp")]
 const MKL_CONFIG: &str = "mkl-static-lp64-iomp";
@@ -58,7 +57,7 @@ fn main() -> Result<()> {
         let path = if cfg!(feature = "xdg-data-home") {
             xdg_home_path()
         } else {
-            PathBuf::from(env::var("OUT_DIR").unwrap())
+            std::path::PathBuf::from(std::env::var("OUT_DIR").unwrap())
         };
         println!(
             r#"cargo:warning="Download Intel MKL archive into {}""#,

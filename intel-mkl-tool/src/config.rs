@@ -118,7 +118,11 @@ impl Config {
         };
         libs.push("mkl_core".into());
         if matches!(self.parallel, Threading::OpenMP) {
-            libs.push("iomp5".into());
+            if cfg!(windows) {
+                libs.push("libiomp5md".into());
+            } else {
+                libs.push("iomp5".into());
+            }
         }
         libs
     }
