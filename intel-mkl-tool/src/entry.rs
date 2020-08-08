@@ -92,7 +92,9 @@ impl Entry {
             //   - include      <- lib.include_paths detects this
             //   - lib/intel64
             for path in lib.include_paths {
-                targets.seek(&path.join("../lib/intel64"));
+                let mut path_mut = path;
+                path_mut.pop();
+                targets.seek(&path_mut.join("lib/intel64"));
             }
         }
 
@@ -102,36 +104,40 @@ impl Entry {
 
         // $MKLROOT
         let mkl_root = std::env::var("MKLROOT").map(|path| PathBuf::from(path));
-        if let Ok(path) = mkl_root {
+        if let Ok(mut path) = mkl_root {
             if cfg!(windows) {
                 if path.exists() {
                     targets.seek(path.join("lib/intel64"));
-                    targets.seek(path.join("../compiler/lib/intel64"));
+                    path.pop();
+                    targets.seek(path.join("compiler/lib/intel64"));
                 }
             } else {
                 if path.exists() {
                     targets.seek(path.join("lib/intel64"));
-                    targets.seek(path.join("../lib/intel64"));
-                    targets.seek(path.join("../compiler/intel64"));
+                    path.pop();
+                    targets.seek(path.join("lib/intel64"));
+                    targets.seek(path.join("compiler/intel64"));
                 }
             }
         }
 
         // /opt/intel/mkl
-        let opt_mkl = PathBuf::from("/opt/intel/mkl");
+        let mut opt_mkl = PathBuf::from("/opt/intel/mkl");
         if opt_mkl.exists() {
             targets.seek(opt_mkl.join("lib/intel64"));
-            targets.seek(opt_mkl.join("../lib/intel64"));
-            targets.seek(path.join("../compiler/intel64"));
+            opt_mkl.pop();
+            targets.seek(opt_mkl.join("lib/intel64"));
+            targets.seek(path.join("compiler/intel64"));
         }
 
         // Default setting for Windows installer
-        let windows_mkl = PathBuf::from(
+        let mut windows_mkl = PathBuf::from(
             "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/mkl",
         );
         if windows_mkl.exists() {
             targets.seek(windows_mkl.join("lib/intel64"));
-            targets.seek(windows_mkl.join("../compiler/lib/intel64"));
+            windows_mkl.pop();
+            targets.seek(windows_mkl.join("compiler/lib/intel64"));
         }
 
         if targets.found_any() {
