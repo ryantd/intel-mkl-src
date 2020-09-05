@@ -1,10 +1,6 @@
 name: intel-mkl-sys
 
-on:
-  push:
-    branches:
-      - master
-  pull_request: {}
+on: [push, pull_request]
 
 jobs:
   windows:
