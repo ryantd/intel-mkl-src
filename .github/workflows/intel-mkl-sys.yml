@@ -16,6 +16,10 @@ jobs:
           - mkl-static-ilp64-seq
           - mkl-dynamic-lp64-seq
           - mkl-dynamic-ilp64-seq
+          - mkl-static-lp64-iomp
+          - mkl-static-ilp64-iomp
+          - mkl-dynamic-lp64-iomp
+          - mkl-dynamic-ilp64-iomp
     runs-on: windows-2019
     steps:
       - uses: actions/checkout@v1
