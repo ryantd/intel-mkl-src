@@ -106,7 +106,7 @@ mod package;
 pub use config::*;
 pub use entry::*;
 
-const S3_ADDR: &'static str = "https://s3-ap-northeast-1.amazonaws.com/rust-intel-mkl";
+const S3_ADDR: &'static str = "https://s3.amazonaws.com/rust-intel-mkl";
 
 #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
 mod mkl {
